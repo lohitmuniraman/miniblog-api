@@ -5,13 +5,13 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 
 export const register = async (req: Request, res: Response) => {
-  const { email, password, username } = req.body;
+  const { email, password, username, name } = req.body;
   
   const userExists = await User.findOne({ email });
   if (userExists) return res.status(400).json({ message: 'User already exists' });
   
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, password: hashedPassword, username });
+  const user = await User.create({ email, password: hashedPassword, username, name });
   
   res.status(201).json({ user: { username: user.username, email: user.email } });
 };
@@ -27,14 +27,14 @@ export const login = async (req: Request, res: Response) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
   
-  const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET!, { expiresIn: '24h' });
-  res.json({ token, user: { username: user.username, email: user.email, userId: user._id } });
+  const token = jwt.sign({ id: user._id, username: user.username, name: user.name }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+  res.json({ token, user: { username: user.username, email: user.email, userId: user._id, name: user.name } });
 };
 
 export const userList = async (req: Request, res: Response) => {
   const users = await User.find()
 
-  res.json(users.map(user => ({ email: user.email, username: user.username, userId: user._id })))
+  res.json(users.map(user => ({ email: user.email, username: user.username, userId: user._id, name: user.name, createdAt: user.createdAt })));
 }
 
 export const profile = async (req: Request, res: Response) => {
@@ -42,5 +42,5 @@ export const profile = async (req: Request, res: Response) => {
   const userId = req?.user?.id
 
   const user = await User.findOne({ _id: userId })
-  res.json({ username: user?.username, email: user?.email })
+  res.json({ username: user?.username, email: user?.email, name: user?.name })
 }
