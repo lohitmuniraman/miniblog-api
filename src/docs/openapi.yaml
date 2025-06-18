@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Mini Blogging Platform API
+  version: 1.0.0
+  description: OpenAPI spec for Memoir blogs application with JWT-based auth
+servers:
+  - url: http://localhost:6123
+    description: Local server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Blog:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [name, username, email, password]
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        201:
+          description: Account created successfully
+          content:
+            application/json:
+              example:
+                username: "lohitmuniraman"
+                email: "lohit@gmail.com"
+                password: "aqu172sh64gtt/tMH5kWDzCi/mD8OgcqrkwMSFh8phNPCkFlI0tL8Wrh5TXC"
+                _id: "684e5846f729de6e0afb8c45"
+                createdAt: "2025-06-15T05:21:10.764Z"
+                updatedAt: "2025-06-15T05:21:10.764Z"
+        400:
+          description: User already registered
+          content:
+            application/json:
+              example:
+                message: "User already exists"
+  /login:
+    post:
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [email, password]
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjg0ZDZlYjM4ODk3M2Q5YzAyMDBhMzdkIiwiZW1haWwiOiJlZHdhcmQuc3RvbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NTAwNTg3OTAsImV4cCI6MTc1MDA2NTk5MH0.wwJhttJpYVK8m-I0AzYIu8Nwo1IhcSjvv_7efjhRx8Q"
+                user: 
+                  username: "lohitmuniraman"
+                  email: "lohit@gmail.com"
+                  userId: "684e5846f729de6e0afb8c45"
+                  name: "Lohit"
+        400:
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                message: "Invalid credentials"
+        400:
+          description: User not registered
+          content:
+            application/json:
+              example:
+                message: "User not found"
+  
+  /userList:
+    get:
+      summary: Get all users list
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Users list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /profile:
+    get:
+      summary: Get user profile details
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: User profile 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  
+  /blog:
+    post:
+      summary: Create a new blog
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [text, title]
+              type: object
+              properties:
+                title:
+                  type: string
+                text:
+                  type: string
+      responses:
+        201:
+          description: Blog created successfully
+          content:
+            application/json:
+                schema:
+                  $ref: "#/components/schemas/Blog"
+    get:
+      summary: Get all posts of a particular user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Blog"
+    patch:
+      summary: Update a blog
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [text, title]
+              type: object
+              properties:
+                title:
+                  type: string
+                text:
+                  type: string
+      responses:
+        200:
+          description: Blog updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Blog"
+      
+  /all-blogs:
+    get:
+      summary: Get all users' blogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Blog"
+
+  /blog/{blogId}:
+    get:
+      summary: Get details of a single blog
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blogId
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Details of the blog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Blog"
+              
