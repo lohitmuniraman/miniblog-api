@@ -17,13 +17,13 @@ export const createBlog = async (req: Request, res: Response) => {
 export const listBlogs = async (req: Request, res: Response) => {
     //@ts-expect-error reading user from req
     const userId = req?.user?.userId
-    const blogs = await Blog.find({ userId }).sort({ createdAt: -1 })
+    const blogs = await Blog.find({ userId }).sort({ updatedAt: -1 })
 
     res.json(blogs)
 }
 
 export const listAllBlogs = async (req: Request, res: Response) => {
-    const blogs = await Blog.find().sort({ createdAt: -1 })
+    const blogs = await Blog.find().sort({ updatedAt: -1 })
 
     res.json(blogs)
 }

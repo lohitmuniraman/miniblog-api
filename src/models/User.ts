@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isAdmin: { type: Boolean, required: true },
   resetPassword: { type: Boolean, default: false },
+  isSuspended: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export const User = mongoose.model('User', UserSchema);
